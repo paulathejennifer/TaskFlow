@@ -10,6 +10,9 @@ import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { useAuth } from "@/app/hooks/use-auth";
 
+const DEMO_EMAIL = "testuser2@example.com";
+const DEMO_PASSWORD = "Test1234!";
+
 export default function RegisterPage() {
   const router = useRouter();
   const { register, loading } = useAuth();
@@ -114,6 +117,11 @@ export default function RegisterPage() {
               onChange={(event) => setPassword(event.target.value)}
               required
             />
+
+            <p className="text-xs text-text-muted">
+              Use a password that meets the application's password
+              requirements.
+            </p>
           </div>
 
           <Button
@@ -125,7 +133,41 @@ export default function RegisterPage() {
           </Button>
         </form>
 
-        <div className="mt-10 text-center">
+        <div className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
+          <p className="text-sm font-semibold text-text-primary">
+            Need to preview the app?
+          </p>
+
+          <p className="mt-1 text-xs leading-5 text-text-muted">
+            You can use the demo account below from the Login page.
+            This is provided for evaluation and demonstration purposes.
+          </p>
+
+          <div className="mt-3 space-y-1 text-sm">
+            <p className="text-text-muted">
+              Email:{" "}
+              <span className="font-medium text-text-primary">
+                {DEMO_EMAIL}
+              </span>
+            </p>
+
+            <p className="text-text-muted">
+              Password:{" "}
+              <span className="font-medium text-text-primary">
+                {DEMO_PASSWORD}
+              </span>
+            </p>
+          </div>
+
+          <Link
+            href="/login"
+            className="mt-3 inline-block text-sm font-semibold text-primary hover:text-primary-hover"
+          >
+            Go to demo login →
+          </Link>
+        </div>
+
+        <div className="mt-8 text-center">
           <p className="text-sm text-text-muted">
             Already have an account?{" "}
             <Link

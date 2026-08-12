@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { DashboardSummary } from "@/app/components/dashboard/dashboard-summary";
+import { EditTaskModal } from "@/app/components/tasks/edit-task-modal";
 import { TaskSection } from "@/app/components/tasks/task-section";
+import type { TaskFormValues } from "@/app/components/tasks/task-form-types";
 import { useAuth } from "@/app/hooks/use-auth";
 import { useCategories } from "@/app/hooks/use-categories";
 import { useTasks } from "@/app/hooks/use-tasks";
+import type { Task } from "@/app/types/task";
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -15,6 +18,8 @@ export default function DashboardPage() {
     tasks,
     loading: tasksLoading,
     error: tasksError,
+    updateTask,
+    deleteTask,
   } = useTasks();
 
   const {
@@ -22,6 +27,10 @@ export default function DashboardPage() {
     loading: categoriesLoading,
     error: categoriesError,
   } = useCategories();
+
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const summary = useMemo(() => {
     const completedTasks = tasks.filter(
@@ -51,7 +60,62 @@ export default function DashboardPage() {
   const loading =
     authLoading || tasksLoading || categoriesLoading;
 
-  const error = tasksError ?? categoriesError;
+  const error =
+    tasksError ??
+    categoriesError ??
+    actionError;
+
+  async function handleUpdateTask(values: TaskFormValues) {
+    if (!editTask) {
+      return;
+    }
+
+    setActionError(null);
+    setActionLoading(true);
+
+    try {
+      await updateTask(editTask.id, {
+        title: values.title,
+        description: values.description || null,
+        category_id: values.category_id || null,
+        status: values.status,
+        priority: values.priority,
+        start_date: values.start_date || null,
+        due_date: values.due_date || null,
+      });
+
+      setEditTask(null);
+    } catch (err) {
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : "Failed to update task.",
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleDeleteTask(task: Task) {
+    setActionError(null);
+    setActionLoading(true);
+
+    try {
+      await deleteTask(task.id);
+
+      if (editTask?.id === task.id) {
+        setEditTask(null);
+      }
+    } catch (err) {
+      setActionError(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete task.",
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -84,7 +148,10 @@ export default function DashboardPage() {
           </h1>
 
           <p className="mt-1 text-sm text-text-muted">
-            Welcome back{user?.full_name ? `, ${user.full_name}` : ""}.
+            Welcome back
+            {user?.full_name
+              ? `, ${user.full_name}`
+              : ""}.
           </p>
         </div>
 
@@ -106,8 +173,12 @@ export default function DashboardPage() {
         </h1>
 
         <p className="mt-1 text-sm text-text-muted">
-          Welcome back{user?.full_name ? `, ${user.full_name}` : ""}.
-          {" "}Here&apos;s an overview of your tasks.
+          Welcome back
+          {user?.full_name
+            ? `, ${user.full_name}`
+            : ""}.
+          {" "}
+          Here&apos;s an overview of your tasks.
         </p>
       </div>
 
@@ -121,6 +192,25 @@ export default function DashboardPage() {
       <TaskSection
         tasks={tasks}
         categories={categories}
+        onEditTask={(task) => {
+          setActionError(null);
+          setEditTask(task);
+        }}
+        onDeleteTask={handleDeleteTask}
+      />
+
+      <EditTaskModal
+        open={editTask !== null}
+        task={editTask}
+        categories={categories}
+        loading={actionLoading}
+        onClose={() => {
+          if (!actionLoading) {
+            setEditTask(null);
+          }
+        }}
+        onSubmit={handleUpdateTask}
+        onDelete={handleDeleteTask}
       />
     </main>
   );

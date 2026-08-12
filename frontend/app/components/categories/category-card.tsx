@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 
+import type { Category } from "@/app/types/category";
+
 type CategoryCardProps = {
-  name: string;
+  category: Category;
   taskCount: number;
   totalTasks: number;
   colorClassName?: string;
-  onEdit?: () => void;
-  onDelete?: () => void;
+  onEdit?: (category: Category) => void;
+  onDelete?: (category: Category) => void;
 };
 
 const colorVariants = [
@@ -65,7 +67,7 @@ function EllipsisIcon() {
 }
 
 export function CategoryCard({
-  name,
+  category,
   taskCount,
   totalTasks,
   colorClassName,
@@ -76,14 +78,26 @@ export function CategoryCard({
 
   const percentage =
     totalTasks > 0
-      ? Math.min(100, Math.round((taskCount / totalTasks) * 100))
+      ? Math.min(
+          100,
+          Math.round((taskCount / totalTasks) * 100),
+        )
       : 0;
 
   const variant =
-    colorVariants[Math.abs(name.length) % colorVariants.length];
+    colorVariants[
+      Math.abs(category.name.length) % colorVariants.length
+    ];
 
-  const iconClassName = colorClassName ?? variant.icon;
-  const progressClassName = colorClassName ?? variant.progress;
+  const iconClassName = colorClassName
+    ? colorClassName.replace(
+        /^bg-(.+)$/,
+        "bg-$1/10 text-$1",
+      )
+    : variant.icon;
+
+  const progressClassName =
+    colorClassName ?? variant.progress;
 
   return (
     <article className="relative rounded-xl border border-border bg-surface p-4 transition hover:border-border/80 hover:shadow-sm">
@@ -100,21 +114,28 @@ export function CategoryCard({
         <div className="relative">
           <button
             type="button"
-            aria-label={`Actions for ${name}`}
+            aria-label={`Actions for ${category.name}`}
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
+            aria-haspopup="menu"
+            onClick={() =>
+              setMenuOpen((open) => !open)
+            }
             className="rounded-md p-2 text-text-muted transition hover:bg-muted hover:text-text-primary"
           >
             <EllipsisIcon />
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-9 z-10 min-w-28 rounded-lg border border-border bg-surface p-1 shadow-lg">
+            <div
+              role="menu"
+              className="absolute right-0 top-9 z-20 min-w-28 rounded-lg border border-border bg-surface p-1 shadow-lg"
+            >
               <button
                 type="button"
+                role="menuitem"
                 onClick={() => {
                   setMenuOpen(false);
-                  onEdit?.();
+                  onEdit?.(category);
                 }}
                 className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-muted"
               >
@@ -123,9 +144,10 @@ export function CategoryCard({
 
               <button
                 type="button"
+                role="menuitem"
                 onClick={() => {
                   setMenuOpen(false);
-                  onDelete?.();
+                  onDelete?.(category);
                 }}
                 className="block w-full rounded-md px-3 py-2 text-left text-sm text-danger hover:bg-danger/10"
               >
@@ -138,11 +160,12 @@ export function CategoryCard({
 
       <div className="mt-4">
         <h2 className="font-semibold text-text-primary">
-          {name}
+          {category.name}
         </h2>
 
         <p className="mt-1 text-sm text-text-muted">
-          {taskCount} {taskCount === 1 ? "task" : "tasks"}
+          {taskCount}{" "}
+          {taskCount === 1 ? "task" : "tasks"}
         </p>
       </div>
 

@@ -55,8 +55,11 @@ export function TaskSection({
     const result = tasks.filter((task) => {
       const taskStatus = String(task.status).toUpperCase();
 
+      const normalizedStatus =
+        taskStatus === "DONE" ? "COMPLETED" : taskStatus;
+
       const matchesStatus =
-        status === "ALL" || taskStatus === status;
+        status === "ALL" || normalizedStatus === status;
 
       const matchesCategory =
         category === "ALL" || task.category_id === category;
@@ -127,7 +130,9 @@ export function TaskSection({
   ) {
     setSelectedTaskIds((current) =>
       selected
-        ? [...current, taskId]
+        ? current.includes(taskId)
+          ? current
+          : [...current, taskId]
         : current.filter((id) => id !== taskId),
     );
   }

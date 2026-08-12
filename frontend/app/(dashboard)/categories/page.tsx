@@ -3,10 +3,15 @@
 import { useState } from "react";
 
 import { CategoryCard } from "@/app/components/categories/category-card";
+import { CreateCategoryModal } from "@/app/components/categories/create-category-modal";
+import { DeleteCategoryModal } from "@/app/components/categories/delete-category-modal";
+import { EditCategoryModal } from "@/app/components/categories/edit-category-modal";
 import { EmptyState } from "@/app/components/shared/empty-state";
 import { Button } from "@/app/components/ui/button";
 import { useCategories } from "@/app/hooks/use-categories";
 import { useTasks } from "@/app/hooks/use-tasks";
+
+import type { Category } from "@/app/types/category";
 
 function PlusIcon() {
   return (
@@ -29,11 +34,26 @@ function PlusIcon() {
 
 export default function CategoriesPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const [editingCategory, setEditingCategory] =
+    useState<Category | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const [deletingCategory, setDeletingCategory] =
+    useState<Category | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const {
     categories,
     loading: categoriesLoading,
     error: categoriesError,
+    createCategory,
+    updateCategory,
+    deleteCategory,
   } = useCategories();
 
   const {
@@ -44,6 +64,110 @@ export default function CategoriesPage() {
 
   const loading = categoriesLoading || tasksLoading;
   const error = categoriesError ?? tasksError;
+
+  const openCreateModal = () => {
+    setCreateError(null);
+    setCreateModalOpen(true);
+  };
+
+  const closeCreateModal = () => {
+    if (!createLoading) {
+      setCreateModalOpen(false);
+    }
+  };
+
+  async function handleCreateCategory(name: string) {
+    setCreateLoading(true);
+    setCreateError(null);
+
+    try {
+      await createCategory({
+        name,
+      });
+
+      setCreateModalOpen(false);
+    } catch (err) {
+      setCreateError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create category.",
+      );
+    } finally {
+      setCreateLoading(false);
+    }
+  }
+
+  const handleOpenEdit = (category: Category) => {
+    setEditError(null);
+    setEditingCategory(category);
+  };
+
+  const handleCloseEdit = () => {
+    if (!editLoading) {
+      setEditingCategory(null);
+      setEditError(null);
+    }
+  };
+
+  async function handleEditCategory(name: string) {
+    if (!editingCategory) {
+      return;
+    }
+
+    setEditLoading(true);
+    setEditError(null);
+
+    try {
+      await updateCategory(editingCategory.id, {
+        name,
+      });
+
+      setEditingCategory(null);
+    } catch (err) {
+      setEditError(
+        err instanceof Error
+          ? err.message
+          : "Failed to update category.",
+      );
+    } finally {
+      setEditLoading(false);
+    }
+  }
+
+  const handleOpenDelete = (category: Category) => {
+    setDeleteError(null);
+    setDeletingCategory(category);
+  };
+
+  const handleCloseDelete = () => {
+    if (!deleteLoading) {
+      setDeletingCategory(null);
+      setDeleteError(null);
+    }
+  };
+
+  async function handleDeleteCategory() {
+    if (!deletingCategory) {
+      return;
+    }
+
+    setDeleteLoading(true);
+    setDeleteError(null);
+
+    try {
+      await deleteCategory(deletingCategory.id);
+
+      setDeletingCategory(null);
+    } catch (err) {
+      setDeleteError(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete category.",
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -72,14 +196,24 @@ export default function CategoriesPage() {
   if (error) {
     return (
       <main className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-text-primary">
-            Categories
-          </h1>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-text-primary">
+              Categories
+            </h1>
 
-          <p className="mt-1 text-sm text-text-muted">
-            Organize your tasks into categories.
-          </p>
+            <p className="mt-1 text-sm text-text-muted">
+              Organize your tasks into categories.
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            onClick={openCreateModal}
+          >
+            <PlusIcon />
+            <span className="ml-2">Create category</span>
+          </Button>
         </div>
 
         <div
@@ -88,13 +222,16 @@ export default function CategoriesPage() {
         >
           {error}
         </div>
+
+        <CreateCategoryModal
+          open={createModalOpen}
+          loading={createLoading}
+          onClose={closeCreateModal}
+          onSubmit={handleCreateCategory}
+        />
       </main>
     );
   }
-
-  const openCreateModal = () => {
-    setCreateModalOpen(true);
-  };
 
   return (
     <main className="space-y-8">
@@ -111,13 +248,40 @@ export default function CategoriesPage() {
 
         <Button
           type="button"
-          aria-label="+ Create category"
+          aria-label="Create category"
           onClick={openCreateModal}
         >
           <PlusIcon />
           <span className="ml-2">Create category</span>
         </Button>
       </div>
+
+      {createError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-danger/20 bg-danger/10 p-4 text-sm text-danger"
+        >
+          {createError}
+        </div>
+      )}
+
+      {editError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-danger/20 bg-danger/10 p-4 text-sm text-danger"
+        >
+          {editError}
+        </div>
+      )}
+
+      {deleteError && (
+        <div
+          role="alert"
+          className="rounded-xl border border-danger/20 bg-danger/10 p-4 text-sm text-danger"
+        >
+          {deleteError}
+        </div>
+      )}
 
       {categories.length === 0 ? (
         <EmptyState
@@ -155,7 +319,7 @@ export default function CategoriesPage() {
             return (
               <CategoryCard
                 key={category.id}
-                name={category.name}
+                category={category}
                 taskCount={taskCount}
                 totalTasks={tasks.length}
                 colorClassName={
@@ -166,43 +330,36 @@ export default function CategoriesPage() {
                     "bg-warning",
                   ][index % 4]
                 }
+                onEdit={handleOpenEdit}
+                onDelete={handleOpenDelete}
               />
             );
           })}
         </section>
       )}
 
-      {createModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Create category"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
-        >
-          <div className="w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-text-primary">
-                  Create category
-                </h2>
+      <CreateCategoryModal
+        open={createModalOpen}
+        loading={createLoading}
+        onClose={closeCreateModal}
+        onSubmit={handleCreateCategory}
+      />
 
-                <p className="mt-1 text-sm text-text-muted">
-                  Category creation form will go here.
-                </p>
-              </div>
+      <EditCategoryModal
+        open={editingCategory !== null}
+        category={editingCategory}
+        loading={editLoading}
+        onClose={handleCloseEdit}
+        onSubmit={handleEditCategory}
+      />
 
-              <button
-                type="button"
-                aria-label="Close create category dialog"
-                onClick={() => setCreateModalOpen(false)}
-                className="rounded-md px-2 py-1 text-text-muted hover:bg-muted hover:text-text-primary"
-              >
-                ×
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteCategoryModal
+        open={deletingCategory !== null}
+        category={deletingCategory}
+        loading={deleteLoading}
+        onClose={handleCloseDelete}
+        onConfirm={handleDeleteCategory}
+      />
     </main>
   );
 }
