@@ -34,12 +34,14 @@ class Task(Base):
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     category_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("categories.id", ondelete="SET NULL"),
         nullable=True,
+        index=True,
     )
 
     title: Mapped[str] = mapped_column(
@@ -53,15 +55,29 @@ class Task(Base):
     )
 
     status: Mapped[TaskStatus] = mapped_column(
-        Enum(TaskStatus, name="task_status"),
+        Enum(
+            TaskStatus,
+            name="task_status",
+            values_callable=lambda enum_class: [
+                item.value for item in enum_class
+            ],
+        ),
         nullable=False,
         default=TaskStatus.TODO,
+        server_default=TaskStatus.TODO.value,
     )
 
     priority: Mapped[TaskPriority] = mapped_column(
-        Enum(TaskPriority, name="task_priority"),
+        Enum(
+            TaskPriority,
+            name="task_priority",
+            values_callable=lambda enum_class: [
+                item.value for item in enum_class
+            ],
+        ),
         nullable=False,
         default=TaskPriority.MEDIUM,
+        server_default=TaskPriority.MEDIUM.value,
     )
 
     start_date: Mapped[datetime | None] = mapped_column(
@@ -92,12 +108,12 @@ class Task(Base):
         nullable=False,
     )
 
-    user = relationship(
+    user: Mapped["User"] = relationship(
         "User",
         back_populates="tasks",
     )
 
-    category = relationship(
+    category: Mapped["Category | None"] = relationship(
         "Category",
         back_populates="tasks",
     )

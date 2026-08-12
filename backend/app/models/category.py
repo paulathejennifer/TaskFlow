@@ -21,6 +21,7 @@ class Category(Base):
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     name: Mapped[str] = mapped_column(
@@ -41,12 +42,12 @@ class Category(Base):
         nullable=False,
     )
 
-    user = relationship(
+    user: Mapped["User"] = relationship(
         "User",
         back_populates="categories",
     )
 
-    tasks = relationship(
+    tasks: Mapped[list["Task"]] = relationship(
         "Task",
         back_populates="category",
     )

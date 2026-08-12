@@ -7,22 +7,41 @@ from app.models.task import TaskPriority, TaskStatus
 
 
 class TaskCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=200)
+    title: str = Field(
+        min_length=1,
+        max_length=200,
+    )
+
     description: str | None = None
+
     category_id: UUID | None = None
+
     status: TaskStatus = TaskStatus.TODO
+
     priority: TaskPriority = TaskPriority.MEDIUM
+
     start_date: datetime | None = None
+
     due_date: datetime | None = None
 
 
 class TaskUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=200)
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=200,
+    )
+
     description: str | None = None
+
     category_id: UUID | None = None
+
     status: TaskStatus | None = None
+
     priority: TaskPriority | None = None
+
     start_date: datetime | None = None
+
     due_date: datetime | None = None
 
 
