@@ -1,47 +1,60 @@
+"use client";
+
 import { SummaryCard } from "@/app/components/dashboard/summary-card";
 
-function CompletedIcon() {
+function CheckCircleIcon() {
   return (
     <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="h-5 w-5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="9" />
-      <path d="m8 12 2.5 2.5L16 9" />
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
   );
 }
 
-function TodoIcon() {
+function ClipboardIcon() {
   return (
     <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="h-5 w-5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <rect x="5" y="4" width="14" height="17" rx="2" />
-      <path d="M9 2h6v4H9z" />
-      <path d="M9 10h6M9 14h6M9 18h3" />
+      <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
     </svg>
   );
 }
 
-function InProgressIcon() {
+function ClockIcon() {
   return (
     <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      className="h-5 w-5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
     </svg>
   );
 }
@@ -75,7 +88,7 @@ export function DashboardSummary({
         description={`${completionPercentage}% completed`}
         progress={completionPercentage}
         progressClassName="bg-success"
-        icon={<CompletedIcon />}
+        icon={<CheckCircleIcon />}
         iconClassName="text-success"
         iconBackgroundClassName="bg-success/10"
       />
@@ -83,7 +96,7 @@ export function DashboardSummary({
       <SummaryCard
         title="To Do"
         value={todoTasks}
-        icon={<TodoIcon />}
+        icon={<ClipboardIcon />}
         iconClassName="text-primary"
         iconBackgroundClassName="bg-primary/10"
       />
@@ -91,7 +104,7 @@ export function DashboardSummary({
       <SummaryCard
         title="In Progress"
         value={inProgressTasks}
-        icon={<InProgressIcon />}
+        icon={<ClockIcon />}
         iconClassName="text-warning"
         iconBackgroundClassName="bg-warning/10"
       />
@@ -99,7 +112,7 @@ export function DashboardSummary({
       <SummaryCard
         title="Completed"
         value={completedTasks}
-        icon={<CompletedIcon />}
+        icon={<CheckCircleIcon />}
         iconClassName="text-success"
         iconBackgroundClassName="bg-success/10"
       />

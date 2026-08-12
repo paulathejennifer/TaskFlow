@@ -1,5 +1,3 @@
-// app/components/dashboard/__tests__/dashboard-summary.test.tsx
-
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -34,10 +32,7 @@ describe("DashboardSummary", () => {
 
     expect(screen.getByText("5 / 17")).toBeInTheDocument();
     expect(screen.getByText("7")).toBeInTheDocument();
-
-    expect(
-      screen.getAllByText("5").length,
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1);
   });
 
   it("calculates the completion percentage", () => {
