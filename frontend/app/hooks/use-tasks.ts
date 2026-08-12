@@ -7,8 +7,8 @@ import { getAccessToken } from "@/app/lib/auth";
 
 import type {
   Task,
-  TaskCreate,
-  TaskUpdate,
+  CreateTaskRequest as TaskCreate,
+  UpdateTaskRequest as TaskUpdate,
 } from "@/app/types/task";
 
 interface UseTasksReturn {

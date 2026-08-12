@@ -7,8 +7,8 @@ import { getAccessToken } from "@/app/lib/auth";
 
 import type {
   Category,
-  CategoryCreate,
-  CategoryUpdate,
+  CreateCategoryRequest as CategoryCreate,
+  UpdateCategoryRequest as CategoryUpdate,
 } from "@/app/types/category";
 
 interface UseCategoriesReturn {
