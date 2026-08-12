@@ -59,29 +59,45 @@ export function useAuth(): UseAuthReturn {
 
   const login = useCallback(
     async (data: LoginRequest) => {
-      const response = await apiRequest<TokenResponse>("/auth/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      setLoading(true);
 
-      setAccessToken(response.access_token);
+      try {
+        const response = await apiRequest<TokenResponse>("/auth/login", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
 
-      await refreshUser();
+        setAccessToken(response.access_token);
+
+        const currentUser = await apiRequest<User>("/auth/me", {
+          token: response.access_token,
+        });
+
+        setUser(currentUser);
+      } finally {
+        setLoading(false);
+      }
     },
-    [refreshUser],
+    [],
   );
 
   const register = useCallback(
     async (data: RegisterRequest) => {
-      await apiRequest<User>("/auth/register", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      setLoading(true);
 
-      await login({
-        email: data.email,
-        password: data.password,
-      });
+      try {
+        await apiRequest<User>("/auth/register", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+
+        await login({
+          email: data.email,
+          password: data.password,
+        });
+      } finally {
+        setLoading(false);
+      }
     },
     [login],
   );
@@ -89,6 +105,7 @@ export function useAuth(): UseAuthReturn {
   const logout = useCallback(() => {
     removeAccessToken();
     setUser(null);
+    setLoading(false);
   }, []);
 
   return {

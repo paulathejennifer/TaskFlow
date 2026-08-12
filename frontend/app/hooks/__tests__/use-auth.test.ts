@@ -78,10 +78,6 @@ describe("useAuth", () => {
   });
 
   it("logs in and stores the returned access token", async () => {
-    vi.mocked(getAccessToken)
-      .mockReturnValueOnce(null)
-      .mockReturnValueOnce("new-token");
-
     vi.mocked(apiRequest)
       .mockResolvedValueOnce({
         access_token: "new-token",
@@ -129,10 +125,6 @@ describe("useAuth", () => {
   });
 
   it("registers a user and then logs them in", async () => {
-    vi.mocked(getAccessToken)
-      .mockReturnValueOnce(null)
-      .mockReturnValueOnce("new-token");
-
     vi.mocked(apiRequest)
       .mockResolvedValueOnce(mockUser)
       .mockResolvedValueOnce({
@@ -168,8 +160,30 @@ describe("useAuth", () => {
       },
     );
 
+    expect(apiRequest).toHaveBeenNthCalledWith(
+      2,
+      "/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email: "john@example.com",
+          password: "TestPassword123!",
+        }),
+      },
+    );
+
     expect(setAccessToken).toHaveBeenCalledWith("new-token");
+
+    expect(apiRequest).toHaveBeenNthCalledWith(
+      3,
+      "/auth/me",
+      {
+        token: "new-token",
+      },
+    );
+
     expect(result.current.user).toEqual(mockUser);
+    expect(result.current.isAuthenticated).toBe(true);
   });
 
   it("logs out the current user", async () => {
@@ -179,7 +193,7 @@ describe("useAuth", () => {
     const { result } = renderHook(() => useAuth());
 
     await waitFor(() => {
-      expect(result.current.isAuthenticated).toBe(true);
+      expect(result.current.user).toEqual(mockUser);
     });
 
     act(() => {
