@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 
-import type { Task } from "@/app/types/task";
-
+import { EmptyState } from "@/app/components/shared/empty-state";
 import { TaskFilters } from "@/app/components/tasks/task-filters";
 import { TaskPagination } from "@/app/components/tasks/task-pagination";
 import { TaskTable } from "@/app/components/tasks/task-table";
+
+import type { Task } from "@/app/types/task";
 
 type TaskSectionProps = {
   tasks: Task[];
@@ -15,6 +16,7 @@ type TaskSectionProps = {
     name: string;
   }>;
   loading?: boolean;
+  onCreateTask?: () => void;
   onTaskClick?: (task: Task) => void;
   onEditTask?: (task: Task) => void;
   onDeleteTask?: (task: Task) => void;
@@ -26,6 +28,7 @@ export function TaskSection({
   tasks,
   categories = [],
   loading = false,
+  onCreateTask,
   onTaskClick,
   onEditTask,
   onDeleteTask,
@@ -38,9 +41,7 @@ export function TaskSection({
   const [sort, setSort] = useState("DUE_DATE");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>(
-    [],
-  );
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
 
   const categoryNames = useMemo(
     () =>
@@ -55,12 +56,10 @@ export function TaskSection({
       const taskStatus = String(task.status).toUpperCase();
 
       const matchesStatus =
-        status === "ALL" ||
-        taskStatus === status;
+        status === "ALL" || taskStatus === status;
 
       const matchesCategory =
-        category === "ALL" ||
-        task.category_id === category;
+        category === "ALL" || task.category_id === category;
 
       const query = search.trim().toLowerCase();
 
@@ -133,6 +132,19 @@ export function TaskSection({
     );
   }
 
+  if (!loading && tasks.length === 0) {
+    return (
+      <section className="space-y-4">
+        <EmptyState
+          title="No tasks yet"
+          description="Create your first task to get started."
+          buttonLabel="Create task"
+          onAction={() => onCreateTask?.()}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="space-y-4">
       <TaskFilters
@@ -143,8 +155,9 @@ export function TaskSection({
         categories={categories.map((item) => item.name)}
         onStatusChange={handleStatusChange}
         onCategoryChange={(value) => {
-          const selectedCategory =
-            categories.find((item) => item.name === value);
+          const selectedCategory = categories.find(
+            (item) => item.name === value,
+          );
 
           handleCategoryChange(
             selectedCategory?.id ?? "ALL",
