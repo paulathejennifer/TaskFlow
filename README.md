@@ -450,7 +450,7 @@ You will also need:
 Open a terminal and run:
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone <[REPOSITORY_URL](https://github.com/paulathejennifer/TaskFlow)>
 ```
 
 Then enter the project directory:
