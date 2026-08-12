@@ -4,11 +4,15 @@ from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
 
+from app.routes.auth import router as auth_router
+
 app = FastAPI(
     title="TaskFlow API",
     description="Backend API for the TaskFlow task management application.",
     version="0.1.0",
 )
+
+app.include_router(auth_router)
 
 
 @app.get("/health")
