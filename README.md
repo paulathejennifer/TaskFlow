@@ -968,24 +968,6 @@ Add a secure password-reset flow so users can recover access to their accounts.
 
 ---
 
-## More Advanced Task Filtering
-
-Allow users to filter tasks by:
-
-* Category.
-* Priority.
-* Due date.
-* Multiple statuses.
-* Overdue state.
-
----
-
-## Search
-
-Add task search so users can quickly locate a task by title or description.
-
----
-
 ## Notifications
 
 Provide reminders for approaching or overdue tasks.
