@@ -1,3 +1,4 @@
+import enum
 import uuid
 from datetime import datetime
 
@@ -6,6 +7,18 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+
+class TaskStatus(str, enum.Enum):
+    TODO = "TODO"
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+
+
+class TaskPriority(str, enum.Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
 
 
 class Task(Base):
@@ -39,26 +52,16 @@ class Task(Base):
         nullable=True,
     )
 
-    status: Mapped[str] = mapped_column(
-        Enum(
-            "TODO",
-            "IN_PROGRESS",
-            "DONE",
-            name="task_status",
-        ),
+    status: Mapped[TaskStatus] = mapped_column(
+        Enum(TaskStatus, name="task_status"),
         nullable=False,
-        default="TODO",
+        default=TaskStatus.TODO,
     )
 
-    priority: Mapped[str] = mapped_column(
-        Enum(
-            "LOW",
-            "MEDIUM",
-            "HIGH",
-            name="task_priority",
-        ),
+    priority: Mapped[TaskPriority] = mapped_column(
+        Enum(TaskPriority, name="task_priority"),
         nullable=False,
-        default="MEDIUM",
+        default=TaskPriority.MEDIUM,
     )
 
     start_date: Mapped[datetime | None] = mapped_column(
